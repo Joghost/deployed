@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+    <html lang="en">
+      <head>
+      
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <link rel="stylesheet" href="{% static 'assets/css/materialize.css'%}">
+        <title>PayPal Standard Payments Integration | Client Demo</title>
+      </head>
+
+      <body bgcolor="#eeeeee">
+        <nav>
+            <div class="nav-wrapper white center-align">
+              <a href="#" class="brand-logo black-text">Ethiopian Broker</a>
+            <ul>
+                <li><a href="/" class="black-text">Home</a></li>
+                <li><a href="/settings"class="black-text">Account settings</a></li>
+                 </ul>
+            </div>
+          </nav>
+          
+          <div class=" center-align">
+            <div class="col s3 m4">
+              <div class="card teal lighten-1">
+                <div class="card-content white-text center-align">
+                  <span class="card-title"> <img src="{{user_profile.profileimg.url}}"/>Donate </span>
+                  <p>Dear {{user.username}}, we are a non-profit organization that have built this site for your ease of life. 
+                    With this donation you will be helping us build more projects that will hopefully be to your benefit as well as others.
+                    We would like to extend our gratitude, and we appreciate the support that you have shown and will show in the future. 
+                    <br>"WITH GREAT POWER COMES GREAT RESPONSIBILITY"
+                  </p>
+                
+        <div id="paypal-button-container"></div>
+        <!-- Sample PayPal credentials (client-id) are included -->
+        <script src="https://www.paypal.com/sdk/js?client-id=ASkj188k0SqegWyfUi3dUS-UEgygONISP_SdUIxDkVg0iUfsgZZbVW4qCtkSihkk9_WnteLuBIZDglWQ&currency=USD&intent=capture&enable-funding=venmo" data-sdk-integration-source="integrationbuilder"></script>
+        
+        <script>
+          const fundingSources = [
+            paypal.FUNDING.PAYPAL,
+              paypal.FUNDING.VENMO,
+              paypal.FUNDING.PAYLATER,
+              paypal.FUNDING.CARD
+            ]
+
+          for (const fundingSource of fundingSources) {
+            const paypalButtonsComponent = paypal.Buttons({
+              fundingSource: fundingSource,
+
+              // optional styling for buttons
+              // https://developer.paypal.com/docs/checkout/standard/customize/buttons-style-guide/
+              style: {
+                shape: 'pill',
+                height: 40,
+              },
+
+              // set up the transaction
+              createOrder: (data, actions) => {
+                // pass in any options from the v2 orders create call:
+                // https://developer.paypal.com/api/orders/v2/#orders-create-request-body
+                const createOrderPayload = {
+                  purchase_units: [
+                    {
+                      amount: {
+                        value: '50.50',
+                      },
+                    },
+                  ],
+                }
+
+                return actions.order.create(createOrderPayload)
+              },
+
+              // finalize the transaction
+              onApprove: (data, actions) => {
+                const captureOrderHandler = (details) => {
+                  const payerName = details.payer.name.given_name
+                  console.log('Transaction completed!')
+                }
+
+                return actions.order.capture().then(captureOrderHandler)
+              },
+
+              // handle unrecoverable errors
+              onError: (err) => {
+                console.error(
+                  'An error prevented the buyer from checking out with PayPal',
+                )
+              },
+            })
+
+            if (paypalButtonsComponent.isEligible()) {
+              paypalButtonsComponent
+                .render('#paypal-button-container')
+                .catch((err) => {
+                  console.error('PayPal Buttons failed to render')
+                })
+            } else {
+              console.log('The funding source is ineligible')
+            }
+          }
+        </script>
+      </div>
+    </div>
+      </div>
+    </div>
+  </div>
+  <div class="center-align col 3 m6">
+  <figure> <img style="" src={% static 'images/resources/thank_you.jfif'%}></figure>
+  </div>
+</body>
+    </html>
